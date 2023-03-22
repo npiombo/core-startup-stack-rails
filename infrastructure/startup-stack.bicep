@@ -66,10 +66,6 @@ resource dbSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' existin
   name: 'db'
 }
 
-resource utilsSubnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' existing = {
-  parent: vnet
-  name: 'utils'
-}
 
 var dbPrivateDnsZoneName = 'private.postgres.database.azure.com'
 resource dbPrivateDnsZone 'Microsoft.Network/privateDnsZones@2018-09-01' = {
@@ -204,9 +200,6 @@ resource assetsContainer 'Microsoft.Storage/storageAccounts/blobServices/contain
     denyEncryptionScopeOverride: false
     publicAccess: 'Blob'
   }
-  dependsOn: [
-    storageAccount
-  ]
 }
 
 resource filesContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
@@ -217,9 +210,6 @@ resource filesContainer 'Microsoft.Storage/storageAccounts/blobServices/containe
     denyEncryptionScopeOverride: false
     publicAccess: 'Blob'
   }
-  dependsOn: [
-    storageAccount
-  ]
 }
 
 resource storageContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
@@ -260,7 +250,6 @@ resource db 'Microsoft.DBForPostgreSql/flexibleServers@2020-02-14-preview' = {
   }
   dependsOn: [
     dbSubnet
-    dbPrivateDnsZone
     virtualNetworkLink
   ]
 }
@@ -359,7 +348,6 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
     }
   }
   dependsOn: [
-    appServicePlan
     containerRegistry
     webAppSubnet
   ]
@@ -377,9 +365,6 @@ resource webAppAcrRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-0
     principalType: 'ServicePrincipal'
   }
   scope: containerRegistry
-  dependsOn: [
-    webApp
-  ]
 }
 
 resource webAppNetworkConfig 'Microsoft.Web/sites/networkConfig@2020-12-01' = {
@@ -464,9 +449,6 @@ resource appCdnEndpoint 'Microsoft.Cdn/profiles/endpoints@2020-09-01' = {
     queryStringCachingBehavior: 'IgnoreQueryString'
     urlSigningKeys: []
   }
-  dependsOn: [
-    webApp
-  ]
 }
 
 resource asset_endpoint 'Microsoft.Cdn/profiles/endpoints@2020-09-01' = {
@@ -503,9 +485,6 @@ resource asset_endpoint 'Microsoft.Cdn/profiles/endpoints@2020-09-01' = {
     queryStringCachingBehavior: 'IgnoreQueryString'
     urlSigningKeys: []
   }
-  dependsOn: [
-    storageAccount
-  ]
 }
 
 resource webAppCustomDomain 'Microsoft.Cdn/profiles/endpoints/customdomains@2020-09-01' = if (!empty(domain)) {
@@ -514,9 +493,6 @@ resource webAppCustomDomain 'Microsoft.Cdn/profiles/endpoints/customdomains@2020
   properties: {
     hostName: domain
   }
-  dependsOn: [
-    cdnProfile
-  ]
 }
 
 output url string = 'https://${appCdnEndpoint.properties.hostName}'
