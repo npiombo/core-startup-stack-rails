@@ -38,7 +38,7 @@ RUN bundle exec bin/rails webpacker:compile \
 
 ############### Build step done ###############
 
-FROM ruby:3.2.1-alpine as app
+FROM ruby:2.6.6-alpine as app
 
 ARG RAILS_ROOT=/app
 ARG PACKAGES="tzdata postgresql-client nodejs bash libxml2 libxslt openssh"
